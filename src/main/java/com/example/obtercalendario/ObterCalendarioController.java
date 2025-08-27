@@ -16,9 +16,9 @@ public class ObterCalendarioController {
 
         Map<String, Integer> response = new HashMap<>();
 
-        response.put("day", today.getDayOfMonth());
-        response.put("month", today.getMonthValue());
-        response.put("year", today.getYear());
+        response.put("dia", today.getDayOfMonth());
+        response.put("mes", today.getMonthValue());
+        response.put("ano", today.getYear());
 
         return response;
     }
