@@ -1,4 +1,4 @@
-name: Build and Deploy Spring Boot JAR to Azure
+name: Build and Deploy JAR to Azure
 
 on:
   push:
@@ -7,20 +7,19 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout the repo
+      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up JDK 17
-      - name: Set up Java 17
+      # 2️⃣ Set up Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # 3️⃣ Build the JAR
+      # 3️⃣ Build JAR
       - name: Build JAR with Maven
         run: mvn clean package -DskipTests
 
@@ -36,10 +35,5 @@ jobs:
           az webapp deploy \
             --resource-group rg-lab \
             --name obter-calendario \
-            --src-path target/obter-calendario-0.0.1-SNAPSHOT.jar \
             --type jar \
-            --restart true
-
-      # 6️⃣ (Optional) Stream logs to check deployment
-      - name: Tail Azure Web App logs
-        run: az webapp log tail --name obter-calendario --resource-group rg-lab
+            --src-path target/obter-calendario-0.0.1-SNAPSHOT.jar
