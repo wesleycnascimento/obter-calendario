@@ -14,23 +14,25 @@ import java.time.format.DateTimeFormatter;
 @RestController
 public class ObterCalendarioController {
 
-    private final SecretClient secretClient;
+    // Lazy initialization
+    private SecretClient secretClient;
 
-    @Value("${azure.keyvault.uri}")
-    private String keyVaultUri;
-
-    public ObterCalendarioController() {
-        this.secretClient = new SecretClientBuilder()
-                .vaultUrl(keyVaultUri)
-                .credential(new DefaultAzureCredentialBuilder().build())
-                .buildClient();
+    private SecretClient getSecretClient() {
+        if (secretClient == null) {
+            secretClient = new SecretClientBuilder()
+                    .vaultUrl("https://kv-obtercalendario.vault.azure.net") // your vault
+                    .credential(new DefaultAzureCredentialBuilder().build())
+                    .buildClient();
+        }
+        return secretClient;
     }
 
     @GetMapping("/obterCalendario")
     public String getCalendario() {
         String name;
+
         try {
-            KeyVaultSecret secret = secretClient.getSecret("PersonName");
+            KeyVaultSecret secret = getSecretClient().getSecret("PersonName");
 
             name = secret.getValue();
         } catch (Exception e) {
