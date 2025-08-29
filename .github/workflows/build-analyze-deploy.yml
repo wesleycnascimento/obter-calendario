@@ -32,22 +32,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 4) Build and check coverage
+      # 4) Build, run tests, generate JaCoCo XML
       - name: Build and verify with Maven
-        run: mvn -B verify
+        run: mvn clean verify
 
       # 5) Run SonarCloud scan and wait for Quality Gate
       - name: SonarCloud scan with Quality Gate
         uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectBaseDir: .   # root of the project where pom.xml / sonar-project.properties lives
+          projectBaseDir: .  # root of the project
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # GitHub token (auto-generated)
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     # SonarCloud token
-          # Optional if you don't have sonar-project.properties:
-          # SONAR_ORG: ${{ secrets.SONAR_ORG }}
-          # SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-          # SONAR_HOST_URL: https://sonarcloud.io
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=wesleycnascimento_obter-calendario \
+            -Dsonar.organization=wesleycnascimento \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.qualitygate.wait=true
 
       # 6) Azure login (runs only if SonarCloud Quality Gate passed)
       - name: Azure Login

@@ -78,30 +78,39 @@
 						</goals>
 					</execution>
 
-					<!-- Generate coverage report -->
+					<!-- Generate report after tests -->
 					<execution>
 						<id>report</id>
 						<phase>verify</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jacoco-report</outputDirectory>
+							<formats>
+								<format>XML</format>
+								<format>HTML</format>
+								<format>CSV</format>
+							</formats>
+						</configuration>
 					</execution>
 
-					<!-- Check coverage threshold -->
+					<!-- Fail build if coverage < 80% -->
 					<execution>
 						<id>check</id>
+						<phase>verify</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
 						<configuration>
 							<rules>
 								<rule>
-									<element>PACKAGE</element>
+									<element>BUNDLE</element>
 									<limits>
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.80</minimum> <!-- 80% coverage -->
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -110,6 +119,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 
