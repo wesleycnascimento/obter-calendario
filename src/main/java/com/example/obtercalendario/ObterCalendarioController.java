@@ -41,6 +41,8 @@ public class ObterCalendarioController {
 
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
+        String unusedVariable = "I am not used!";
+
         return String.format("%s, today is %s", name, date);
     }
 }
