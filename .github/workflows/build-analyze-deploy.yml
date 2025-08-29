@@ -1,0 +1,64 @@
+name: Build, Analyze (Quality Gate), and Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-analyze-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2) Cache Maven (speed)
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      # 3) JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 4) Build the app JAR
+      - name: Build JAR with Maven
+        run: mvn -B -DskipTests package
+
+      # 5) Run Sonar scan and WAIT for Quality Gate
+      #    If the scanner fails OR the Quality Gate is RED, this step fails and the job stops (no deploy).
+      - name: SonarCloud scan with Quality Gate
+        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.qualitygate.wait=true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          # If you didn't add sonar-project.properties, you can supply these:
+          # SONAR_HOST_URL: https://sonarcloud.io
+          # SONAR_ORG: ${{ secrets.SONAR_ORG }}
+          # SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          # and add: -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.organization=$SONAR_ORG -Dsonar.projectKey=$SONAR_PROJECT_KEY
+
+      # 6) Azure login (runs only if Sonar passed)
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 7) Deploy JAR to Azure Web App
+      - name: Deploy JAR to Azure Web App
+        run: |
+          az webapp deploy \
+            --resource-group rg-lab \
+            --name obter-calendario \
+            --type jar \
+            --src-path target/obter-calendario-0.0.1-SNAPSHOT.jar
