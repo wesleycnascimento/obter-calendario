@@ -4,7 +4,6 @@ import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,8 +40,10 @@ public class ObterCalendarioController {
 
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
-        String unusedVariable = "I am not used!";
-
         return String.format("%s, today is %s", name, date);
+    }
+
+    SecretClient exposeGetSecretClient() {
+        return getSecretClient();
     }
 }

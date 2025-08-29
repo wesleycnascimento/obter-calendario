@@ -32,9 +32,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 4) Build the JAR
-      - name: Build JAR with Maven
-        run: mvn -B -DskipTests package
+      # 4) Build and check coverage
+      - name: Build and verify with Maven
+        run: mvn -B verify
 
       # 5) Run SonarCloud scan and wait for Quality Gate
       - name: SonarCloud scan with Quality Gate
